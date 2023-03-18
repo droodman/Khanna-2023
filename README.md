@@ -4,7 +4,7 @@ This archive holds the data and code used in the [reanalysis](https://arxiv.org/
 Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.1086/721619)."
 
 ## Code
-The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages, which are available through the `ssc install` command unless otherwise noted:
+The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
 * `coefplot`
 * `esttab`
 * `spmap`
