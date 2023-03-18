@@ -3,10 +3,15 @@
 This archive holds the data and code used in the [reanalysis](https://arxiv.org/abs/XXXX) of Khanna (2023), "[Large-Scale Education Reform in General
 Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.1086/721619)."
 
-The code consists of a single Stata .do file, code/K23.do. The first lines of the file document its dependencies.
+## Code
+The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages:
+* asd
+* asda
 
+## Output
 The output folder contains figures and tables produced by the code, in PNG and RTF formats.
 
+## Data
 The data files:
 
 1. 2009_Distdb.dta and 2009_Distcoord.dta. These are used by the spmap command to make the maps. Commented-out lines in K23.do use the shp2dta command to make these files from the [2009 district shapefile for India hosted by IPUMS International](https://international.ipums.org/international/gis_yrspecific_2nd.shtml).
