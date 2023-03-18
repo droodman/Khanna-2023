@@ -4,9 +4,15 @@ This archive holds the data and code used in the [reanalysis](https://arxiv.org/
 Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.1086/721619)."
 
 ## Code
-The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages:
-* asd
-* asda
+The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages, which are available through the `ssc install` command unless otherwise noted:
+* `coefplot`
+* `esttab`
+* `spmap`
+* `shp2dta`
+* `blindschemes`
+* `grc1leg2` (install with `net install grc1leg2, from(http://digital.cgdev.org/doc/stata/MO/Misc)`)
+* `rdrobust` (install my tweaked version with `net install rdrobust, from(https://raw.github.com/droodman/rdrobust/master/stata) replace`; my tweaks prevent rdplot from crashing when passed labels in quotes, and prevents rdbwselect_2014 from crashing by including some missing Mata files)
+* `parallel` (install my tweaked version with `net install parallel, from(https://raw.github.com/droodman/parallel/master) replace`; it distributes workload slightly more evenly across CPU cores)
 
 ## Output
 The output folder contains figures and tables produced by the code, in PNG and RTF formats.
