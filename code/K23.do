@@ -1,3 +1,5 @@
+* code for first public version of the comment
+
 // dependencies (on SSC unless otherwise noted):
 // 	 coefplot
 // 	 esttab
@@ -18,7 +20,7 @@ set scheme plotplain
 //   use "NSS66/`file'", clear
 //   destring *, replace
 //   compress
-//   odbc insert, dsn(Khanna) table(`=substr("`file'", 1, strlen("`file'")-4)') create sqlshow
+//   odbc insert, dsn(Khanna) table(`=substr("`file'", 1, strlen("`file'")-4)') create
 // }
 
 
@@ -37,10 +39,12 @@ set scheme plotplain
   scalar National_Average_FL = .39286956
 
   * district-level stats
-  // odbc load, exec("SELECT DISTINCT DISTRICT_CODE as DIST2009, DPEP, K23_DPEP, K23_NSS_Sample, Female_Literacy, K23_Female_Literacy, FL_SD FROM Datasets") dsn(Khanna) clear
-  // saveold "data/K23 district-level", version(13) replace
+  odbc load, exec("SELECT DISTINCT DISTRICT_CODE as DIST2009, DPEP, K23_DPEP, K23_NSS_Sample, Female_Literacy, K23_Female_Literacy, FL_SD FROM Datasets") dsn(Khanna) clear
+  saveold "data/K23 district-level", version(13) replace
   use "data/K23 district-level", clear
   merge 1:1 DIST2009 using "$shapefilepath\2009_Distdb", keep(master match using)
+
+  recode DPEP (.5 = .)  // Baksa, Assam, has mixed parentage; code program status as missing
 
   gen byte NSS_Sample = 1 if _merge != 2
   replace K23_NSS_Sample = . if K23_NSS_Sample==0
@@ -55,8 +59,8 @@ set scheme plotplain
   spmap     DPEP       using "$shapefilepath\2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapDNew , replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
   grc1leg2 mapDOrig mapDNew, name(Dmaps, replace) graphregion(margin(zero)) imargin(zero) title(Treatment, pos(11) margin(zero)) pos(3)
 
-  spmap K23_NSS_Sample using "$shapefilepath\2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSOrig, replace) title(Original data, size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Data"))
-  spmap     NSS_Sample using "$shapefilepath\2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSNew , replace) title(New data    , size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
+  spmap K23_NSS_Sample using "$shapefilepath\2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSOrig, replace) title(Original data set, size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Data"))
+  spmap     NSS_Sample using "$shapefilepath\2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSNew , replace) title(New data set     , size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
   grc1leg2 mapNSSOrig mapNSSNew, name(NSSmaps, replace) graphregion(margin(zero)) imargin(zero) title(Follow-up, pos(11) margin(zero)) pos(3)
 
   replace K23_NSS_Sample = 2 if K23_NSS_Sample==. & NSS_Sample<.
@@ -88,13 +92,15 @@ set scheme plotplain
 ***
 cap program drop PrepData
 program define PrepData
-  // odbc load, clear dsn(Khanna) exec("SELECT SUM(F_LITERATE)/CAST(SUM(T_F_POPLN-POPLN_F6) AS real) as fl FROM Census1991.[District Primary Census Abstracts]")
-  // scalar National_Average_FL = fl[1]  // should be .39286956; also see http://14.139.60.153/bitstream/123456789/1042/1/Census%201991_District%20Literacy_D-10761.pdf#page=4
+//   odbc load, clear dsn(Khanna) exec("SELECT SUM(F_LITERATE)/CAST(SUM(T_F_POPLN-POPLN_F6) AS real) as fl FROM Census1991.[District Primary Census Abstracts]")
+//   scalar National_Average_FL = fl[1]  // should be .39286956; also see http://14.139.60.153/bitstream/123456789/1042/1/Census%201991_District%20Literacy_D-10761.pdf#page=4
   scalar National_Average_FL = .39286956
 
-  odbc load, clear dsn(Khanna) exec("select * from Datasets where Age between 17 and 100")
-  saveold "data/K23 individual-level", version(13) replace
+  cap odbc load, clear dsn(Khanna) exec("select * from Datasets where Age between 17 and 100")
+  if !_rc saveold "data/K23 individual-level", version(13) replace
   use "data/K23 individual-level", clear
+
+  recode DPEP (.5 = .)  // Baksa, Assam, has mixed parentage; code program status as missing
 
   foreach p in "" K23_ {
     gen `p'lnWages  = ln(`p'Wages)   // all wages
@@ -103,7 +109,7 @@ program define PrepData
   recode General_Education                       (5 = 3) (6 = 5) (7 = 8) (8 = 10) (10 = 12) (11 = 14) (12 = 16) (13 = 18) (nonmiss = 0), gen(Years_Schooling)  // based partly on DOI 10.1177/1464993417716357, p. 4; see http://www.icssrdataservice.in/datarepository/index.php/catalog/89/datafile/F4/V161
   recode K23_General_Education (2 = 1) (3 4 = 2) (5 = 3) (6 = 5) (7 = 8) (8 = 10) (10 = 12) (11 = 14) (12 = 16) (13 = 18) (nonmiss = 0), gen(K23_Years_Schooling)  // assigns some schooling to "without formal schooling"
 
-  gen byte single_parent = FL_SD < .03  // really districts of relatively unmixed parentage, because they come mostly from one parent, or literacy doesn't vary much across parents
+  gen byte single_parent = FL_SD < .01  // was .03; really districts of relatively unmixed parentage, because they come mostly from one parent, or literacy doesn't vary much across parents
   gen double lnWeekly_Wages = lnWages - ln(Days_worked / 7)  // meaning wage rate rather than total wages
   gen byte Skilled = Years_Schooling>=8
 
@@ -122,7 +128,7 @@ corr K23_Years_Schooling Years_Schooling
 * document 4 absent districts
 {
   preserve
-  collapse Female_Literacy DPEP (first) District_2001 State_2001 if Years_Schooling<. & K23_Years_Schooling==. & single_parent, by(DISTRICT_CODE)
+  collapse Female_Literacy DPEP if Years_Schooling<. & K23_Years_Schooling==. & single_parent, by(DISTRICT_CODE)
   sort Female_Literacy
   list
   restore
@@ -173,45 +179,45 @@ corr K23_Years_Schooling Years_Schooling
   scalar h  = round(e(h_CCT), .001)  // original rounds
   scalar bb = round(e(b_CCT), .001)  // unfortunately, rdrobust deletes the scalar b
 
-  cap erase RDD.rtf
+  cap erase output/RDD.rtf
   forvalues s=1/2 {
     local sample: word `s' of Age<35 Age<=75&Age>35
     local samplename: word `s' of Young Old
 
     eststo OriginalSchooling`samplename'    : rdrobust K23_Years_Schooling K23_Female_Literacy if K23_`sample' & K23_Wages1<., scalepar(-1) c(.39286) h(`=h') b(`=bb') all
     robustify OriginalSchooling`samplename' OriginalRobSchooling`samplename'
-    eststo OriginalAutoSchooling`samplename': rdrobust K23_Years_Schooling K23_Female_Literacy if K23_`sample' & K23_Wages1<., scalepar(-1) c(.39286) vce(hc3) all
+    eststo OriginalAutoSchooling`samplename': rdrobust K23_Years_Schooling K23_Female_Literacy if K23_`sample' & K23_Wages1<., scalepar(-1) c(.39286) vce(hc3) all //  bwselect(cerrd)  // last option new since first arXiv version
     eststo OriginalClSchooling`samplename'  : rdrobust K23_Years_Schooling K23_Female_Literacy if K23_`sample' & K23_Wages1<., scalepar(-1) c(.39286) h(`=h') b(`=bb') all vce(cluster K23_Female_Literacy)
     eststo OriginalWtSchooling`samplename'  : rdrobust K23_Years_Schooling K23_Female_Literacy if K23_`sample' & K23_Wages1<., scalepar(-1) c(.39286) h(`=h') b(`=bb') all weights(WTtr)
     eststo RevisedNo4Schooling`samplename'  : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent & !inlist(DISTRICT_CODE,1402,2719,2728,3318), scalepar(-1) c(`=National_Average_FL') h(`=h') b(`=bb') all
     eststo RevisedSchooling`samplename'     : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, scalepar(-1) c(`=National_Average_FL') h(`=h') b(`=bb') all
-    eststo AllNowtSchooling`samplename'     : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy)
+    eststo AllNowtSchooling`samplename'     : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllNowtSchooling`samplename' AllNowtRobSchooling`samplename'
-    eststo AllSchooling`samplename'         : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr)
+    eststo AllSchooling`samplename'         : rdrobust Years_Schooling Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllSchooling`samplename' AllRobSchooling`samplename'
 
     eststo OriginalWages`samplename'    : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', scalepar(-1) c(.39286) h(`=h') b(`=bb') all
     robustify OriginalWages`samplename' OriginalRobWages`samplename'
-    eststo OriginalAutoWages`samplename': rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', scalepar(-1) c(.39286) vce(hc3) all
+    eststo OriginalAutoWages`samplename': rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', scalepar(-1) c(.39286) vce(hc3) all //  bwselect(cerrd)  // last option new since first arXiv version
     eststo OriginalClWages`samplename'  : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', scalepar(-1) c(.39286) h(`=h') b(`=bb') all vce(cluster K23_Female_Literacy)
     eststo OriginalWtWages`samplename'  : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', scalepar(-1) c(.39286) h(`=h') b(`=bb') all weights(WTtr)
     eststo RevisedNo4Wages`samplename'  : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent & !inlist(DISTRICT_CODE,1402,2719,2728,3318), scalepar(-1) c(`=National_Average_FL') h(`=h') b(`=bb') all
     eststo RevisedWages`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, scalepar(-1) c(`=National_Average_FL') h(`=h') b(`=bb') all
-    eststo AllNowtWages`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy)
+    eststo AllNowtWages`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllNowtWages`samplename' AllNowtRobWages`samplename'
-    eststo AllWages`samplename'         : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr)
+    eststo AllWages`samplename'         : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, scalepar(-1) c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllWages`samplename' AllRobWages`samplename'
 
     eststo OriginalFRDD`samplename'    : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', c(.39286) h(`=h') b(`=bb') all fuzzy(K23_Years_Schooling)
     robustify OriginalFRDD`samplename' OriginalRobFRDD`samplename'
-    eststo OriginalAutoFRDD`samplename': rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', c(.39286) all vce(hc3) fuzzy(K23_Years_Schooling)
+    eststo OriginalAutoFRDD`samplename': rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', c(.39286) all vce(hc3) fuzzy(K23_Years_Schooling) //  bwselect(cerrd)  // last option new since first arXiv version
     eststo OriginalClFRDD`samplename'  : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', c(.39286) h(`=h') b(`=bb') all vce(cluster K23_Female_Literacy) fuzzy(K23_Years_Schooling)
     eststo OriginalWtFRDD`samplename'  : rdrobust K23_lnWages1 K23_Female_Literacy if K23_`sample', c(.39286) h(`=h') b(`=bb') all weights(WTtr) fuzzy(K23_Years_Schooling)
     eststo RevisedNo4FRDD`samplename'  : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent & !inlist(DISTRICT_CODE,1402,2719,2728,3318), c(`=National_Average_FL') h(`=h') b(`=bb') all fuzzy(Years_Schooling)
     eststo RevisedFRDD`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, c(`=National_Average_FL') h(`=h') b(`=bb') all fuzzy(Years_Schooling)
-    eststo AllNowtFRDD`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, c(`=National_Average_FL') all vce(cluster Female_Literacy) fuzzy(Years_Schooling)
+    eststo AllNowtFRDD`samplename'     : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, c(`=National_Average_FL') all vce(cluster Female_Literacy) fuzzy(Years_Schooling) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllNowtFRDD`samplename' AllNowtRobFRDD`samplename'
-    eststo AllFRDD`samplename'         : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr) fuzzy(Years_Schooling)
+    eststo AllFRDD`samplename'         : rdrobust lnWeekly_Wages Female_Literacy if `sample'-(`s'-1) & single_parent, c(`=National_Average_FL') all vce(cluster Female_Literacy) weights(WTtr) fuzzy(Years_Schooling) //  bwselect(cerrd)  // last option new since first arXiv version
     robustify AllFRDD`samplename' AllRobFRDD`samplename'
     
     estadd scalar N_h = e(N_h_l) + e(N_h_r): OriginalSchooling`samplename' OriginalRobSchooling`samplename' OriginalAutoSchooling`samplename' OriginalClSchooling`samplename' OriginalWtSchooling`samplename' RevisedNo4Schooling`samplename' RevisedSchooling`samplename' AllNowtRobSchooling`samplename' AllRobSchooling`samplename' ///
@@ -219,9 +225,9 @@ corr K23_Years_Schooling Years_Schooling
                                              OriginalFRDD`samplename'      OriginalRobFRDD`samplename'      OriginalAutoFRDD`samplename'      OriginalClFRDD`samplename'      OriginalWtFRDD`samplename'      RevisedNo4FRDD`samplename'      RevisedFRDD`samplename'      AllNowtRobFRDD`samplename'      AllRobFRDD`samplename'       
 
     local mtitles = cond(`s'==1, `"mtitles("Original" "Robust CI" "Regression-specific BW" "Clustered" "Sampling weights" "Revised data x 4 absent districts" "Revised data, all districts" "All changes but weights" "All changes")"', "nomtitles")
-    esttab OriginalSchooling`samplename' OriginalRobSchooling`samplename' OriginalAutoSchooling`samplename' OriginalClSchooling`samplename' OriginalWtSchooling`samplename' RevisedNo4Schooling`samplename' RevisedSchooling`samplename' AllNowtRobSchooling`samplename' AllRobSchooling`samplename' using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3f %6.0fc)) nonotes          nogaps star(* .1 ** .05 *** .01) nolines paren noobs `mtitles' fonttbl(\f0\fnil LM Roman 9;) msign("–") b(a3) se(a3) 
-    esttab OriginalWages`samplename'     OriginalRobWages`samplename'     OriginalAutoWages`samplename'     OriginalClWages`samplename'     OriginalWtWages`samplename'     RevisedNo4Wages`samplename'     RevisedWages`samplename'     AllNowtRobWages`samplename'     AllRobWages`samplename'     using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3f %6.0fc)) nonotes nonumber nogaps star(* .1 ** .05 *** .01) nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(a3) se(a3) 
-    esttab OriginalFRDD`samplename'      OriginalRobFRDD`samplename'      OriginalAutoFRDD`samplename'      OriginalClFRDD`samplename'      OriginalWtFRDD`samplename'      RevisedNo4FRDD`samplename'      RevisedFRDD`samplename'      AllNowtRobFRDD`samplename'      AllRobFRDD`samplename'      using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3f %6.0fc)) nonotes nonumber nogaps star(* .1 ** .05 *** .01) nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(a3) se(a3) 
+    esttab OriginalSchooling`samplename' OriginalRobSchooling`samplename' OriginalAutoSchooling`samplename' OriginalClSchooling`samplename' OriginalWtSchooling`samplename' RevisedNo4Schooling`samplename' RevisedSchooling`samplename' AllNowtRobSchooling`samplename' AllRobSchooling`samplename' using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3g %8.0gc)) nonotes          nogaps star(* .1 ** .05 *** .01) nolines paren noobs `mtitles' fonttbl(\f0\fnil LM Roman 9;) msign("–") b(%5.3g) se(%5.3g) 
+    esttab OriginalWages`samplename'     OriginalRobWages`samplename'     OriginalAutoWages`samplename'     OriginalClWages`samplename'     OriginalWtWages`samplename'     RevisedNo4Wages`samplename'     RevisedWages`samplename'     AllNowtRobWages`samplename'     AllRobWages`samplename'     using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3g %8.0gc)) nonotes nonumber nogaps star(* .1 ** .05 *** .01) nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(%5.3g) se(%5.3g) 
+    esttab OriginalFRDD`samplename'      OriginalRobFRDD`samplename'      OriginalAutoFRDD`samplename'      OriginalClFRDD`samplename'      OriginalWtFRDD`samplename'      RevisedNo4FRDD`samplename'      RevisedFRDD`samplename'      AllNowtRobFRDD`samplename'      AllRobFRDD`samplename'      using output/RDD.rtf, append style(tab) keep(Conventional) varlabel(Conventional "Estimate") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3g %8.0gc)) nonotes nonumber nogaps star(* .1 ** .05 *** .01) nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(%5.3g) se(%5.3g) 
   }
 }
 
@@ -233,7 +239,7 @@ corr K23_Years_Schooling Years_Schooling
   * schooling-for-young-based bandwidths for original data set
   rdbwselect_2014 K23_Years_Schooling K23_Female_Literacy if K23_Age<35 & K23_lnWages1<., c(.39286)
   scalar h  = round(e(h_CCT), .001)  // original rounds
-  scalar bb = round(e(b_CCT), .001) // unfortunately, rdrobust deletes b
+  scalar bb = round(e(b_CCT), .001)  // unfortunately, rdrobust deletes b
 
   rdbwselect K23_Years_Schooling K23_Female_Literacy if K23_Age<35 & K23_lnWages1<., c(.39286) weights(WTtr)  // rdbwselect_2014 can't handle weights
   scalar hWTtr  = e(h_mserd)
@@ -247,7 +253,7 @@ corr K23_Years_Schooling Years_Schooling
   scalar hclWTtr  = e(h_mserd)
   scalar bbclWTtr = e(b_mserd)
 
-  cap erase RDD2.rtf
+  cap erase output/RDD2.rtf
   forvalues e=1/3 {  // estimation specifications
     local depvar  : word `e' of Years_Schooling lnWages1 lnWages1
     local fuzzy   : word `e' of ""              ""       Years_Schooling
@@ -260,10 +266,10 @@ corr K23_Years_Schooling Years_Schooling
       foreach wt in "" WTtr {
         eststo Original`samplename'`wt'        : rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) h(`=h`wt''  ) b(`=bb`wt''  )
         eststo OriginalCl`samplename'`wt'      : rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) h(`=hcl`wt'') b(`=bbcl`wt'') vce(cluster K23_Female_Literacy)
-        eststo OriginalAutoBW`samplename'`wt'  : rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) vce(hc3)
-        eststo OriginalAutoBWCl`samplename'`wt': rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) vce(cluster K23_Female_Literacy)
-        eststo RevisedAutoBW`samplename'`wt'   : rdrobust `=cond(`e'>1,"lnWeekly_Wages","`depvar'")' Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, weights(`wt') `scalepar' all fuzzy(`fuzzy') c(`=National_Average_FL')
-        eststo RevisedAutoBWCl`samplename'`wt' : rdrobust `=cond(`e'>1,"lnWeekly_Wages","`depvar'")' Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, weights(`wt') `scalepar' all fuzzy(`fuzzy') c(`=National_Average_FL') vce(cluster Female_Literacy)
+        eststo OriginalAutoBW`samplename'`wt'  : rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) vce(hc3) //  bwselect(cerrd)  // last option new since first arXiv version
+        eststo OriginalAutoBWCl`samplename'`wt': rdrobust K23_`depvar'                          K23_Female_Literacy if K23_`sample'     &    K23_Wages1<.                , weights(`wt') `scalepar' all fuzzy(`fuzzy') c(.39286) vce(cluster K23_Female_Literacy) //  bwselect(cerrd)  // last option new since first arXiv version
+        eststo RevisedAutoBW`samplename'`wt'   : rdrobust `=cond(`e'>1,"lnWeekly_Wages","`depvar'")' Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, weights(`wt') `scalepar' all fuzzy(`fuzzy') c(`=National_Average_FL') //  bwselect(cerrd)  // last option new since first arXiv version
+        eststo RevisedAutoBWCl`samplename'`wt' : rdrobust `=cond(`e'>1,"lnWeekly_Wages","`depvar'")' Female_Literacy if `sample'-(`s'-1) & lnWeekly_Wages<. & single_parent, weights(`wt') `scalepar' all fuzzy(`fuzzy') c(`=National_Average_FL') vce(cluster Female_Literacy) //  bwselect(cerrd)  // last option new since first arXiv version
 
         foreach mat in bRD seRD bCCT seCCT bCCTCl seCCTCl {
           cap mat drop `mat'`samplename'`wt'
@@ -287,19 +293,19 @@ corr K23_Years_Schooling Years_Schooling
 
     foreach est in Original OriginalAutoBW RevisedAutoBW {
       if "`est'"=="OriginalAutoBW" & `e'==1 continue
-      cap findfile RDD2.rtf, path(".")
+      cap findfile output/RDD2.rtf, path(".")
       local mtitles = cond(_rc, `"mtitles("Young, unweighted" "Old, unweighted" "Young, weighted" "Old, weighted")"', "nomtitles")
-      esttab `est'Young   `est'Old   `est'YoungWTtr   `est'OldWTtr   using RDD2.rtf, append keep(Conventional Robust)                         stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3f %6.0fc)) nonotes nonumber nogaps nostar nolines paren noobs `mtitles' fonttbl(\f0\fnil LM Roman 9;) msign("–") b(a3) se(a3) 
-      esttab `est'ClYoung `est'ClOld `est'ClYoungWTtr `est'ClOldWTtr using RDD2.rtf, append keep(Robust) varlabel(Robust "Robust, clustered") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3f %6.0fc)) nonotes nonumber nogaps nostar nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(a3) se(a3) 
+      esttab `est'Young   `est'Old   `est'YoungWTtr   `est'OldWTtr   using output/RDD2.rtf, append keep(Conventional Robust)                         stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3g %8.0gc)) nonotes nonumber nogaps nostar nolines paren noobs `mtitles' fonttbl(\f0\fnil LM Roman 9;) msign("–") b(%5.3g) se(%5.3g)
+      esttab `est'ClYoung `est'ClOld `est'ClYoungWTtr `est'ClOldWTtr using output/RDD2.rtf, append keep(Robust) varlabel(Robust "Robust, clustered") stat(h_l N_h, labels(Bandwidth Observations) fmt(%5.3g %8.0gc)) nonotes nonumber nogaps nostar nolines paren noobs nomtitles fonttbl(\f0\fnil LM Roman 9;) msign("–") b(%5.3g) se(%5.3g)
     }
    
     preserve
     drop _all  // speeds up "coefplot, gen"
     local xtitle: word `e' of "Impact of intention-to-treat on schooling" "Impact of intention-to-treat on log wages" "Impact of schooling on log wages"
     local xlabels : word `e' of "" "-.4(.2).6" ""
-    coefplot (m(bRDYoung         ), se(seRDYoung         ) pstyle(p1)) (m(bRDOld         ), se(seRDOld         ) pstyle(p1) mfcolor(gs14))  ///
-             (m(bCCTYoung        ), se(seCCTYoung        ) pstyle(p2)) (m(bCCTOld        ), se(seCCTOld        ) pstyle(p2) mfcolor(gs14))  ///
-             (m(bCCTClYoung      ), se(seCCTClYoung      ) pstyle(p4)) (m(bCCTClOld      ), se(seCCTClOld      ) pstyle(p4) mfcolor(gs14)), bylabel(`=cond(`e'==1, "Without sampling weights", `""""')') || ///
+    coefplot (m(bRDYoung       ), se(seRDYoung       ) pstyle(p1)) (m(bRDOld       ), se(seRDOld       ) pstyle(p1) mfcolor(gs14))  ///
+             (m(bCCTYoung      ), se(seCCTYoung      ) pstyle(p2)) (m(bCCTOld      ), se(seCCTOld      ) pstyle(p2) mfcolor(gs14))  ///
+             (m(bCCTClYoung    ), se(seCCTClYoung    ) pstyle(p4)) (m(bCCTClOld    ), se(seCCTClOld    ) pstyle(p4) mfcolor(gs14)), bylabel(`=cond(`e'==1, "Without sampling weights", `""""')') || ///
              (m(bRDYoungWTtr   ), se(seRDYoungWTtr   ) pstyle(p1)) (m(bRDOldWTtr   ), se(seRDOldWTtr   ) pstyle(p1) mfcolor(gs13))  ///
              (m(bCCTYoungWTtr  ), se(seCCTYoungWTtr  ) pstyle(p2)) (m(bCCTOldWTtr  ), se(seCCTOldWTtr  ) pstyle(p2) mfcolor(gs13))  ///
              (m(bCCTClYoungWTtr), se(seCCTClYoungWTtr) pstyle(p4)) (m(bCCTClOldWTtr), se(seCCTClOldWTtr) pstyle(p4) mfcolor(gs13)), bylabel(`=cond(`e'==1, "With sampling weights", `""""')')    ///
@@ -329,7 +335,6 @@ corr K23_Years_Schooling Years_Schooling
 ***
 
 PrepData
-
 parallel initialize 14  // number of CPU cores to use in bootstrapping
 set seed 17615
 mata st_global("seeds", invtokens(strofreal(runiformint(1, $PLL_CLUSTERS, -2^31, 2^31-1), "%16.0f")))
@@ -469,5 +474,5 @@ end
 
 * GE & elasticity results table
 esttab GEOrig GERob GEAuto GECl GEWt GERevNo4 GERev GEAll GEAllNew using output/GE.rtf, replace ///
-  cells(b(fmt(3)) se(fmt(2) par) p(fmt(2) par([ ]))) noobs nonote nonum nogaps fonttbl(\f0\fnil LM Roman 9;) msign("–") keep(β～₀_y β～₁_y Δβ～_y σ_A σ_E) ///
+  cells(b(fmt(%6.3g)) se(fmt(%9.2g) par) p(fmt(%6.2g) par([ ]))) noobs nonote nonum nogaps fonttbl(\f0\fnil LM Roman 9;) msign("–") keep(β～₀_y β～₁_y Δβ～_y σ_A σ_E) ///
   mtitles("Original" "Robust CI" "Regression-specific BW" "Clustered" "Sampling weights" "Revised data x 4 absent districts" "Revised data, all districts" "All changes" "Revised method & data")
