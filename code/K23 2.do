@@ -6,7 +6,7 @@
 * 	 spmap
 * 	 shp2dta
 * 	 grc1leg2 (net install grc1leg2, from(http://digital.cgdev.org/doc/stata/MO/Misc))
-*   blindschemes
+*    blindschemes
 * 	 rdrobust (tweaked rdplot to not strip quote marks from test labels and rdbwselect_2014 to not crash, "net install rdrobust, from(https://raw.github.com/droodman/rdrobust/master/stata) replace")
 * 	 parallel (tweaked to distribute work more evenly across cores, "net install parallel, from(https://raw.github.com/droodman/parallel/master) replace")
 
