@@ -1,10 +1,10 @@
 # Khanna (2023) reanalysis data and code
 
-This archive holds the data and code used in the [reanalysis](https://arxiv.org/abs/XXXX) of Khanna (2023), "[Large-Scale Education Reform in General
+This archive holds the data and code used in the [reanalysis](https://arxiv.org/abs/2303.11956) of Khanna (2023), "[Large-Scale Education Reform in General
 Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.1086/721619)."
 
 ## Code
-The code consists of a single Stata .do file, code/K23.do. The code requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
+The code consists of a single Stata .do file, `code/K23 2.do`. (K23.do is for the first version of the comment.) The code requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
 * `coefplot`
 * `esttab`
 * `spmap`
