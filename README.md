@@ -3,7 +3,7 @@
 This archive holds the data and code used in the [reanalysis](https://arxiv.org/abs/2303.11956) of Khanna (2023), "[Large-Scale Education Reform in General
 Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.1086/721619)."
 
-It also contains a response to comments from Gaurav Khanna and anonymous reviewers--see the document, "Roodman response to comments.pdf".
+It also contains a response to comments from Gaurav Khanna and anonymous reviewers--see [Roodman response to comments.pdf](https://github.com/droodman/Khanna-2023/blob/main/Roodman%20response%20to%20comments.pdf).
 
 ## Code
 The code consists of a single Stata .do file, `code/K23 2.do`. (K23.do is for the first version of the comment.) The code requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
