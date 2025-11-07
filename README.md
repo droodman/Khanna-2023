@@ -6,18 +6,32 @@ Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.10
 It also contains a response to comments from Gaurav Khanna and anonymous reviewers--see the document, "Roodman response to comments.pdf".
 
 ## Code
-The code consists of a single Stata .do file, `code/K23 2.do`. (K23.do is for the first version of the comment.) The code requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
+The code consists of a single Stata .do file, `code/K23.do`. It requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
 * `coefplot`
 * `esttab`
 * `spmap`
 * `shp2dta`
 * `blindschemes`
 * `grc1leg2` (install in Stata with `net install grc1leg2, from(http://digital.cgdev.org/doc/stata/MO/Misc)`)
-* `rdrobust` (install my tweaked version with `net install rdrobust, from(https://raw.github.com/droodman/rdrobust/master/stata) replace`; my tweaks prevent rdplot from crashing when passed labels in quotes, and prevents rdbwselect_2014 from crashing by including some missing Mata files)
+* `rdrobust`
 * `parallel` (install my tweaked version with `net install parallel, from(https://raw.github.com/droodman/parallel/master) replace`; it distributes workload slightly more evenly across CPU cores)
 
+It also uses `reghdfejl`, which requires `julia`. But `reghdfe` can be substituted.
+
 ## Output
-The output folder contains figures and tables produced by the code, in PNG and RTF formats.
+The output folder contains figures and tables produced by the code, in PNG, RTF, and TXT formats.
+
+The .rtf/.txt files correspond to the tables as follows:
+* Table 1: overview.rtf
+* Table 2: Table2.txt
+* Table 3: RD.rtf
+* Table 4: cutoff_validation.rtf
+* Table 5: GE.rtf
+* Table 6: GE41.rtf
+* Table B-1: RD41.rtf
+* Table C-1: GEnew.rtf
+
+Table A-1 is made from the "FL disagreements" view in the SQL Server database (see below).
 
 ## Data
 The data files:
@@ -29,5 +43,5 @@ The data files:
 
 The Khanna (2023) data and code are available through the [_Journal of Political Economy_](https://doi.org/10.1086/721619) (gated).
 
-The primary data sources were transformed into the analysis data sets in items 3 and 4 using SQL Server. The database is too large for my Github account, at 1GB. A backup is [here](https://1drv.ms/u/s!Avm4GrhZKgeal8kzGkJvZdmClVUdxg?e=MXZq7U).
+The primary data sources were transformed into the analysis data sets in items 3 and 4 using SQL Server. The database is too large for my Github account, at 1GB. A backup is [here](https://1drv.ms/u/c/9a072a59b81ab8f9/Efm4GrhZKgcggJqz5AUAAAABcKauF66nAF8jQRitgdKzDQ?e=yf2acv).
 
