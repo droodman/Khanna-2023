@@ -33,6 +33,14 @@ The .rtf/.txt files correspond to the tables as follows:
 
 Table A-1 is made from the "FL disagreements" view in the SQL Server database (see below).
 
+The .png files correspond to the figures as follows:
+* Figure 1: maps.png
+* Figure 2: rdplot.png
+* Figure 3: DPEPbyptile.png
+* Figure 4: csensWEIGHT.png (csens.png is the version without weights)
+* Figure 5: bsensWEIGHT.png
+* Figure 6: dsensWEIGHT.png
+  
 ## Data
 The data files:
 
