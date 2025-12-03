@@ -13,18 +13,18 @@
 *    julia
 * Most of these are in this archives' ado folder. But the parallel and julia package installation must be done by the replicator do get the proper, machine-specific plug-ins.
 
-cap noi cd "D:/OneDrive - Open Philanthropy Project/Education/Khanna/Public"
-cap noi cd "/Users/davidroodman/Library/CloudStorage/OneDrive-OpenPhilanthropyProject/Education/Khanna/Public"
+*** Need to cd to root of this archive. For example:
+cd "/Users/davidroodman/Downloads/Khanna-2023-main"
+// cap noi cd "D:/OneDrive - Open Philanthropy Project/Education/Khanna/Public"
+// cap noi cd "/Users/davidroodman/Library/CloudStorage/OneDrive-OpenPhilanthropyProject/Education/Khanna/Public"
 
 adopath + ado
 
 if c(os)=="Windows" {
 	global font LM Roman 9  // https://www.1001fonts.com/latin-modern-roman-font.html
-  global shapefilepath D:/OneDrive/Documents/Work/DevDat/India NSS/District shape file 2009  // https://international.ipums.org/international/gis_yrspecific_2nd.shtml
 }
 else {
 	global font Latin Modern Roman
-  global shapefilepath "/Users/davidroodman/Library/CloudStorage/OneDrive-Personal/Documents/Work/DevDat/India NSS/District shape file 2009"
 }
 
 graph set window fontface "$font"
@@ -250,10 +250,10 @@ end
 ***
 {
   *  one-time conversion of IPUMS shapefile (international.ipums.org/international/gis_yrspecific_2nd.shtml) to Stata format 
-  // shp2dta using "$shapefilepath/geo2_in2009", database($shapefilepath/2009_Distdb) coordinates($shapefilepath/2009_Distcoord) genid(DistrictID) replace
-  // use "$shapefilepath/2009_Distdb", clear
-  // destring DIST2009, replace
-  // save "$shapefilepath/2009_Distdb", replace
+  shp2dta using "shp/District shape file 2009/geo2_in2009", database(shp/District shape file 2009/2009_Distdb) coordinates(shp/District shape file 2009/2009_Distcoord) genid(DistrictID) replace
+  use "shp/District shape file 2009/2009_Distdb", clear
+  destring DIST2009, replace
+  save "shp/District shape file 2009/2009_Distdb", replace
 
   // odbc load, clear dsn(Khanna) exec("SELECT SUM(F_LITERATE)/CAST(SUM(T_F_POPLN-POPLN_F6) AS real) as fl FROM Census1991.[District Primary Census Abstracts]")
   // scalar National_Average_FL = fl[1]  // should be .39286956; also see http://14.139.60.153/bitstream/123456789/1042/1/Census%201991_District%20Literacy_D-10761.pdf#page=4
@@ -264,7 +264,7 @@ end
   if !_rc saveold "data/K23 district-level", version(13) replace
   
   use "data/K23 district-level", clear
-  merge 1:1 DIST2009 using "$shapefilepath/2009_Distdb", keep(master match using)
+  merge 1:1 DIST2009 using "shp/District shape file 2009/2009_Distdb", keep(master match using)
 
   recode DPEP (.5 = .)  // Baksa, Assam, has mixed parentage; code program status as missing
 
@@ -273,20 +273,20 @@ end
   gen byte     T = Female_Literacy < National_Average_FL if Female_Literacy<. & FL_SD<.01  // intent to treat
   gen byte K23_T = K23_Female_Literacy < .39286 if K23_Female_Literacy<.
 
-  spmap K23_T          using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapTOrig, replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data") lab(2 "Above literacy cap") lab(3 "Below literacy cap"))
-  spmap     T          using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapTNew , replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
+  spmap K23_T          using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapTOrig, replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data") lab(2 "Above literacy cap") lab(3 "Below literacy cap"))
+  spmap     T          using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapTNew , replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
   grc1leg2 mapTOrig mapTNew, name(Tmaps, replace) graphregion(margin(zero)) imargin(zero) title(Intention to treat, pos(11) margin(zero)) pos(3)
 
-  spmap K23_DPEP       using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapDOrig, replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))             legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data") lab(2 "No DPEP program") lab(3 "DPEP program"))
-  spmap     DPEP       using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapDNew , replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
+  spmap K23_DPEP       using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapDOrig, replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))             legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data") lab(2 "No DPEP program") lab(3 "DPEP program"))
+  spmap     DPEP       using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapDNew , replace) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
   grc1leg2 mapDOrig mapDNew, name(Dmaps, replace) graphregion(margin(zero)) imargin(zero) title(Treatment, pos(11) margin(zero)) pos(3)
 
-  spmap K23_NSS_Sample using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSOrig, replace) title(Original data set, size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Data"))
-  spmap     NSS_Sample using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSNew , replace) title(New data set     , size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
+  spmap K23_NSS_Sample using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSOrig, replace) title(Original data set, size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(size(medium) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Data"))
+  spmap     NSS_Sample using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) name(mapNSSNew , replace) title(New data set     , size(vlarge) pos(6) span) nodraw osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero))
   grc1leg2 mapNSSOrig mapNSSNew, name(NSSmaps, replace) graphregion(margin(zero)) imargin(zero) title(Follow-up, pos(11) margin(zero)) pos(3)
 
   replace K23_NSS_Sample = 2 if K23_NSS_Sample==. & NSS_Sample<.
-  spmap K23_NSS_Sample using "$shapefilepath/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(pos(5) size(medsmall) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Complete data, used in K23") lab(3 "Complete data, not used in K23"))
+  spmap K23_NSS_Sample using "shp/District shape file 2009/2009_Distcoord", id(DistrictID) clmethod(unique) fcolor(blue green) ndfcolor(gs12) osize(.2pt .2pt) ndsize(.2pt) graphregion(margin(zero)) legstyle(3) legend(pos(5) size(medsmall) margin(zero) bmargin(zero) lab(1 "No data                ") lab(2 "Complete data, used in K23") lab(3 "Complete data, not used in K23"))
   graph export output/mapNSSOrig.png, height(1552) replace  // for blog
 
   graph combine Tmaps Dmaps NSSmaps, imargin(zero) graphregion(margin(zero)) cols(1) xsize(7) ysize(8)
