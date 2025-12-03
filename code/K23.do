@@ -1,4 +1,4 @@
-* Code for 2nd version of comment
+* Code for Roodman comment on Khanna (2023)
 
 * dependencies (on SSC unless otherwise noted):
 * 	 coefplot
@@ -11,10 +11,12 @@
 * 	 parallel (tweaked to distribute work more evenly across cores, "net install parallel, from(https://raw.github.com/droodman/parallel/master) replace")
 *    reghdfejl
 *    julia
+* Most of these are in this archives' ado folder. But the parallel and julia package installation must be done by the replicator do get the proper, machine-specific plug-ins.
 
+cap noi cd "D:/OneDrive - Open Philanthropy Project/Education/Khanna/Public"
+cap noi cd "/Users/davidroodman/Library/CloudStorage/OneDrive-OpenPhilanthropyProject/Education/Khanna/Public"
 
-cap cd "D:/OneDrive - Open Philanthropy Project/Education/Khanna/Public/K23"
-cap cd "/Users/davidroodman/Library/CloudStorage/OneDrive-OpenPhilanthropyProject/Education/Khanna/Public/K23"
+adopath + ado
 
 if c(os)=="Windows" {
 	global font LM Roman 9  // https://www.1001fonts.com/latin-modern-roman-font.html
