@@ -18,6 +18,8 @@ The code consists of a single Stata .do file, `code/K23.do`. It requires these u
 
 It also uses `reghdfejl`, which requires `julia`. But `reghdfe` can be substituted.
 
+Most of these programs are included in the "ado" folder. But the `parallel` and `julia` package installations must be done by the replicator in order to get the proper, machine-specific plug-ins.
+
 ## Output
 The output folder contains figures and tables produced by the code, in PNG, RTF, and TXT formats.
 
