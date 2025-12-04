@@ -11,7 +11,7 @@
 * 	 parallel (tweaked to distribute work more evenly across cores, "net install parallel, from(https://raw.github.com/droodman/parallel/master) replace")
 *    reghdfejl
 *    julia
-* Most of these are in this archives' ado folder. But the parallel and julia package installation must be done by the replicator do get the proper, machine-specific plug-ins.
+* Most of these are in this archives' ado folder. But the parallel and julia package installation must be done by the replicator in order to get the proper, machine-specific plug-ins.
 
 *** Need to cd to root of this archive. For example:
 cd "/Users/davidroodman/Downloads/Khanna-2023-main"
@@ -84,6 +84,7 @@ end
 cap program drop RDtable
 program define RDtable
   syntax, agegroups(numlist) specifications(numlist) outfile(string) [ik c(string)]
+  local ik = upper("`ik'")
 
   foreach a of numlist `agegroups' {
     forvalues r=1/3 {
@@ -190,7 +191,7 @@ cap program drop bsGE
 program define bsGE
   syntax, exp(passthru) cmdline(string asis) [cluster(passthru) reps(int 1500)]
   tempfile tempfile
-  eststo: parallel bs, `exp' reps(`reps') seeds($seeds) saving(`tempfile') `cluster': `cmdline'
+  eststo: parallel bs, nodots `exp' reps(`reps') seeds($seeds) saving(`tempfile') `cluster': `cmdline'
   preserve
   use `tempfile', clear
   tempname b
