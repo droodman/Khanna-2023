@@ -5,6 +5,19 @@ Equilibrium: Regression Discontinuity Evidence from India](https://doi.org/10.10
 
 It also contains a response to comments from Gaurav Khanna and anonymous reviewers--see [Roodman response to comments.pdf](https://github.com/droodman/Khanna-2023/blob/main/Roodman%20response%20to%20comments.pdf).
 
+## Data
+The data files:
+
+1. 2009_Distdb.dta and 2009_Distcoord.dta. These are used by the spmap command to make the maps. Commented-out lines in K23.do use the shp2dta command to make these files from the [2009 district shapefile for India hosted by IPUMS International](https://international.ipums.org/international/gis_yrspecific_2nd.shtml), which are stored here in the "shp" directory.
+2. "district info.xlsx". This spreadsheet contains three tabs. The first two document changes in district boundaries. (In India districts often subdivide, and occasionally recombine. This reality poses challenges to researchers wanting to link district-level data sets from different time points.) The "District changes 1991-2001" tab was extracted from [Kumar and Somanathan (2016)](http://www.cdedse.org/pdf/work248.pdf), Tables 7, 8, and 9d. I constructed the "District changes 2001-09" mainly by viewing Wikepedia pages for various districts. Finally, the "DPEP distrcts" tab lists the districts that participated in the District Primary Education Programme according to [this written answer from a minister to a question posed by a member of parliament](https://datais.info/loksabha/question/db0cac20ad912c779f1de1c7b7fd60f3/DISTRICT+PRIMARY+EDUCATION+PROGRAMME)
+3. "K23 district-level.dta" contains district-level variables such as female literacy in 1991 and DPEP treatment status, from both the new data set and the Khanna (2023) one. Variables from the Khanna (2023) data are prefixed with "K23_".
+4. "K23 individual-level.dta.dta" holds the individual-level [data from the 66th National Sample Survey](http://microdata.gov.in/nada43/index.php/catalog/124/data_dictionary#page=F4&tab=data-dictionary), again in both new and Khanna (2023) variants. It also incorporates the district-level variables, carried forward to the districts as of 2009--10. (NSS data is free with registration.)
+
+The Khanna (2023) data and code are available through the [_Journal of Political Economy_](https://doi.org/10.1086/721619) (gated).
+
+The primary data sources were transformed into the analysis data sets in items 3 and 4 using SQL Server. The SQL Server database file is too large for my Github account, at 1GB. A backup is [here](https://1drv.ms/u/c/9a072a59b81ab8f9/Efm4GrhZKgcggJqz5AUAAAABcKauF66nAF8jQRitgdKzDQ?e=yf2acv). This is not needed to run the code, because the archive includes all tables used by the Stata code in Stata-readable formats.
+
+
 ## Code
 The code consists of a single Stata .do file, `code/K23.do`. It requires these user-written packages, which are available through Stata's `ssc install` command unless otherwise noted:
 * `coefplot`
@@ -18,7 +31,7 @@ The code consists of a single Stata .do file, `code/K23.do`. It requires these u
 
 It also uses `reghdfejl`, which requires `julia`. But `reghdfe` can be substituted.
 
-Most of these programs are included in the "ado" folder. But the `parallel` and `julia` package installations must be done by the replicator in order to get the proper, machine-specific plug-ins.
+Most of these packages are included in the "ado" folder of this archive. But the `parallel` and `julia` package installations must be done by the replicator in order to get the proper, machine-specific plug-ins.
 
 ## Output
 The output folder contains figures and tables produced by the code, in PNG, RTF, and TXT formats.
@@ -43,15 +56,3 @@ The .png files correspond to the figures as follows:
 * Figure 5: bsensWEIGHT.png
 * Figure 6: dsensWEIGHT.png
   
-## Data
-The data files:
-
-1. 2009_Distdb.dta and 2009_Distcoord.dta. These are used by the spmap command to make the maps. Commented-out lines in K23.do use the shp2dta command to make these files from the [2009 district shapefile for India hosted by IPUMS International](https://international.ipums.org/international/gis_yrspecific_2nd.shtml).
-2. "district info.xlsx". This spreadsheet contains three tabs. The first two document changes in district boundaries. (In India districts often subdivide, and occasionally recombine. This reality poses challenges to researchers wanting to link district-level data sets from different time points.) The "District changes 1991-2001" tab was extracted from [Kumar and Somanathan (2016)](http://www.cdedse.org/pdf/work248.pdf), Tables 7, 8, and 9d. I constructed the "District changes 2001-09" mainly by viewing Wikepedia pages for various districts. Finally, the "DPEP distrcts" tab lists the districts that participated in the District Primary Education Programme according to [this written answer from a minister to a question posed by a member of parliament](https://datais.info/loksabha/question/db0cac20ad912c779f1de1c7b7fd60f3/DISTRICT+PRIMARY+EDUCATION+PROGRAMME)
-3. "K23 district-level.dta" contains district-level variables such as female literacy in 1991 and DPEP treatment status, from both the new data set and the Khanna (2023) one. Variables from the Khanna (2023) data are prefixed with "K23_".
-4. "K23 individual-level.dta.zip" holds the individual-level [data from the 66th National Sample Survey](http://microdata.gov.in/nada43/index.php/catalog/124/data_dictionary#page=F4&tab=data-dictionary), again in both new and Khanna (2023) variants. It also incorporates the district-level variables, carried forward to the districts as of 2009--10. (NSS data is free with registration.)
-
-The Khanna (2023) data and code are available through the [_Journal of Political Economy_](https://doi.org/10.1086/721619) (gated).
-
-The primary data sources were transformed into the analysis data sets in items 3 and 4 using SQL Server. The database is too large for my Github account, at 1GB. A backup is [here](https://1drv.ms/u/c/9a072a59b81ab8f9/Efm4GrhZKgcggJqz5AUAAAABcKauF66nAF8jQRitgdKzDQ?e=yf2acv).
-
