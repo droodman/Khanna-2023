@@ -294,9 +294,9 @@ end
   graph export output/maps.png, replace width(2000)
 
   di "Table 2: (dis)agreement between original and new program assignment variables"
-  tab2 T    K23_T   , missing
+  table T    K23_T   , missing
   collect export output/Table2.txt, replace
-  tab2 DPEP K23_DPEP, missing
+  table DPEP K23_DPEP, missing
   collect export output/Table2.txt, append
 
   * first row of rdplots
