@@ -14,9 +14,7 @@
 * Most of these are in this archives' ado folder. But the parallel and julia package installation must be done by the replicator in order to get the proper, machine-specific plug-ins.
 
 *** Need to cd to root of this archive. For example:
-cd "/Users/davidroodman/Downloads/Khanna-2023-main"
-// cap noi cd "D:/OneDrive - Open Philanthropy Project/Education/Khanna/Public"
-// cap noi cd "/Users/davidroodman/Library/CloudStorage/OneDrive-OpenPhilanthropyProject/Education/Khanna/Public"
+cap noi cd "D:\OneDrive - David Roodman\Education\Khanna\Public"
 
 adopath + ado
 
@@ -680,5 +678,3 @@ forvalues i=1/2 {
 graph combine DID11 DID21 DID12 DID22 DID13 DID23, cols(2) imargin(zero) title("           Using treatment                                         Using intention to treat") graphregion(margin(zero))
 graph export output/DID.png, replace width(2000)
 }
-
-
